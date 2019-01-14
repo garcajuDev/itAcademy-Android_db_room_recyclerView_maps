@@ -6,9 +6,12 @@ import android.content.Intent;;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,6 +22,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.itacademy.juangarcia.database_animal.Model.Animal;
 import com.itacademy.juangarcia.database_animal.R;
 import com.itacademy.juangarcia.database_animal.ViewModel.AnimalViewModel;
@@ -27,8 +34,11 @@ import java.io.ByteArrayOutputStream;
 import java.util.Calendar;
 import java.util.Objects;;
 
-public class AddAnimalActivity extends AppCompatActivity {
+public class AddAnimalActivity extends AppCompatActivity
+        implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
+    private final String TAG = "PlayServices";
+    protected GoogleApiClient mGoogleApiClient;
     final int CAMERA = 1;
     String photo = "Placeholder String";
     AnimalViewModel animalViewModel;
@@ -50,11 +60,46 @@ public class AddAnimalActivity extends AppCompatActivity {
         textViewDate = findViewById(R.id.txtDate);
         imageViewPhoto = findViewById(R.id.imgPhoto);
         checkBoxChip = findViewById(R.id.chkboxChip);
+
+        Log.i(TAG, "onCreate: Building the GoogleApiClient");
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i(TAG, "onStart: Connectiong to Google Play Services");
+
+        GoogleApiAvailability gAPI = GoogleApiAvailability.getInstance();
+        int resultCode = gAPI.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            gAPI.getErrorDialog(this, resultCode, 1).show();
+        } else {
+            mGoogleApiClient.connect();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG, "onStop: Disconnecting from Google Play Services");
+        mGoogleApiClient.disconnect();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i(TAG, "onPause method called");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        Log.i(TAG, "onResume method called");
 
         animalViewModel = ViewModelProviders.of(this).get(AnimalViewModel.class);
 
@@ -65,11 +110,26 @@ public class AddAnimalActivity extends AppCompatActivity {
             Bundle bundle = animalActivity.getBundleExtra("bundle");
             Animal currentAnimal = (Animal) bundle.getSerializable("animal");
             fill(currentAnimal);
-        }else{
+        } else {
             setTitle("New Animal");
         }
+    }
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Log.i(TAG, "onConnected: Play services onConnected called");
+    }
 
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.d(TAG, "onConnectionSuspended: Connection was suspended, cause code is: " + i);
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.d(TAG, "onConnectionFailed: Connection failed: ConnectionResult.getErrorCode = " +
+                connectionResult.getErrorCode());
     }
 
     //fill the views values with the animal properties to update
@@ -216,7 +276,7 @@ public class AddAnimalActivity extends AppCompatActivity {
         startActivityForResult(cameraIntent, CAMERA);
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAMERA && resultCode == RESULT_OK) {
             Bitmap photobmp = (Bitmap) data.getExtras().get("data");
@@ -229,7 +289,7 @@ public class AddAnimalActivity extends AppCompatActivity {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
         photobmp.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream .toByteArray();
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
 
         return Base64.encodeToString(byteArray, Base64.DEFAULT);
     }
