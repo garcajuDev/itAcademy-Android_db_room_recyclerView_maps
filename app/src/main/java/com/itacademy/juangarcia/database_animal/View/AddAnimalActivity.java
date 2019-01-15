@@ -1,13 +1,18 @@
 package com.itacademy.juangarcia.database_animal.View;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
@@ -31,6 +36,7 @@ import com.itacademy.juangarcia.database_animal.R;
 import com.itacademy.juangarcia.database_animal.ViewModel.AnimalViewModel;
 
 import java.io.ByteArrayOutputStream;
+import java.security.SecurityPermission;
 import java.util.Calendar;
 import java.util.Objects;;
 
@@ -42,7 +48,8 @@ public class AddAnimalActivity extends AppCompatActivity
     final int CAMERA = 1;
     String photo = "Placeholder String";
     AnimalViewModel animalViewModel;
-    TextView textViewName, textViewType, textViewAge, textViewDate;
+    TextView textViewName, textViewType, textViewAge, textViewDate,
+            textViewLat, textViewLon;
     CheckBox checkBoxChip;
     ImageView imageViewPhoto;
     final Calendar calendar = Calendar.getInstance();
@@ -60,6 +67,8 @@ public class AddAnimalActivity extends AppCompatActivity
         textViewDate = findViewById(R.id.txtDate);
         imageViewPhoto = findViewById(R.id.imgPhoto);
         checkBoxChip = findViewById(R.id.chkboxChip);
+        textViewLat = findViewById(R.id.txtLat);
+        textViewLon = findViewById(R.id.txtLon);
 
         Log.i(TAG, "onCreate: Building the GoogleApiClient");
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -118,6 +127,14 @@ public class AddAnimalActivity extends AppCompatActivity
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "onConnected: Play services onConnected called");
+
+        int permCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if (permCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        }
     }
 
     @Override
@@ -130,6 +147,32 @@ public class AddAnimalActivity extends AppCompatActivity
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.d(TAG, "onConnectionFailed: Connection failed: ConnectionResult.getErrorCode = " +
                 connectionResult.getErrorCode());
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            }
+        }
+    }
+
+    private Location getLocation() {
+        try {
+            Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            setLocationFields(location);
+            return location;
+        }catch (SecurityException e){
+            return null;
+        }
+    }
+
+    public void setLocationFields(Location location){
+        Log.d(TAG, "Updating location fields");
+        if (location != null){
+            textViewLat.setText(String.format("%f", location.getLatitude()));
+            textViewLon.setText(String.format("%f", location.getLongitude()));
+        }
     }
 
     //fill the views values with the animal properties to update
@@ -297,5 +340,9 @@ public class AddAnimalActivity extends AppCompatActivity
     private Bitmap bse64ToBitmap(String txtphoto) {
         byte[] imageAsBytes = Base64.decode(txtphoto.getBytes(), Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+    }
+
+    public void onLocation(View view) {
+        getLocation();
     }
 }
