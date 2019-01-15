@@ -9,27 +9,29 @@ import android.os.AsyncTask;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 
-@Database(entities = {Animal.class}, version = 1)
+@Database(entities = {Animal.class}, version = 2)
 public abstract class DataBase extends RoomDatabase {
 
     public abstract AnimalDAO animalDAO();
+
     private static volatile DataBase DB;
 
-    public static DataBase getDataBase(final Context context){
-        if (DB == null){
-            synchronized (DataBase.class){
-                if (DB == null){
-                  DB = Room.databaseBuilder(context.getApplicationContext(),
-                          DataBase.class,"animalDb")
-                          .addCallback(roomDataBaseCallback)
-                          .build();
+    public static DataBase getDataBase(final Context context) {
+        if (DB == null) {
+            synchronized (DataBase.class) {
+                if (DB == null) {
+                    DB = Room.databaseBuilder(context.getApplicationContext(),
+                            DataBase.class, "animalDb")
+                            //.addCallback(roomDataBaseCallback)
+                            .build();
                 }
             }
         }
         return DB;
     }
+}
 
-    public static RoomDatabase.Callback roomDataBaseCallback =
+   /* public static RoomDatabase.Callback roomDataBaseCallback =
             new RoomDatabase.Callback(){
                 public void onCreate(@NonNull SupportSQLiteDatabase database){
                     super.onCreate(database);
@@ -59,4 +61,4 @@ public abstract class DataBase extends RoomDatabase {
             return null;
         }
     }
-}
+}*/

@@ -162,14 +162,14 @@ public class AddAnimalActivity extends AppCompatActivity
             Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             setLocationFields(location);
             return location;
-        }catch (SecurityException e){
+        } catch (SecurityException e) {
             return null;
         }
     }
 
-    public void setLocationFields(Location location){
+    public void setLocationFields(Location location) {
         Log.d(TAG, "Updating location fields");
-        if (location != null){
+        if (location != null) {
             textViewLat.setText(String.format("%f", location.getLatitude()));
             textViewLon.setText(String.format("%f", location.getLongitude()));
         }
@@ -183,6 +183,8 @@ public class AddAnimalActivity extends AppCompatActivity
         textViewAge.setText(String.valueOf(animal.getAge()));
         textViewDate.setText(animal.getDate());
         checkBoxChip.setChecked(animal.isChip());
+        textViewLat.setText(animal.getLatitude());
+        textViewLon.setText(animal.getLongitude());
     }
 
     //no properties with empty values in the updated animal
@@ -205,6 +207,12 @@ public class AddAnimalActivity extends AppCompatActivity
         if (!ani.isChip()) {
             ani.setChip(checkBoxChip.isChecked());
         }
+        if (!ani.getLatitude().equals("")) {
+            ani.setLatitude(textViewLat.getText().toString());
+        }
+        if (!ani.getLongitude().equals("")) {
+            ani.setLongitude(textViewLon.getText().toString());
+        }
         return ani;
     }
 
@@ -215,9 +223,12 @@ public class AddAnimalActivity extends AppCompatActivity
         int animalAge = ageToInt();
         String animalDate = textViewDate.getText().toString();
         boolean chip = hasChip();
+        String latitude = textViewLat.getText().toString();
+        String longitude = textViewLon.getText().toString();
 
         //form validator property
-        boolean test = testInfo(animalName, animalType, animalAge, animalDate);
+        boolean test = testInfo(animalName, animalType, animalAge, animalDate,
+                latitude, longitude);
 
         //form validator
         if (test == false) {
@@ -242,7 +253,7 @@ public class AddAnimalActivity extends AppCompatActivity
         } else {
             setTitle("New Animal");
             Animal toStoreAnimal = new Animal(animalName, photo, animalType,
-                    animalDate, animalAge, chip);
+                    animalDate, animalAge, chip, latitude, longitude);
             animalViewModel.insert(toStoreAnimal);
         }
         finish();
@@ -267,9 +278,11 @@ public class AddAnimalActivity extends AppCompatActivity
     }
 
     //form validator flag method.
-    public boolean testInfo(String name, String type, int age, String date) {
+    public boolean testInfo(String name, String type, int age, String date,
+                            String latitude, String longitude) {
         if (name.trim().isEmpty() || type.trim().isEmpty()
-                || age <= 0 || date.trim().isEmpty()) {
+                || age <= 0 || date.trim().isEmpty()
+                || latitude.trim().isEmpty() || longitude.trim().isEmpty()) {
             return false;
         }
 

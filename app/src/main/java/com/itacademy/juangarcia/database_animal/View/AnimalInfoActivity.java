@@ -16,7 +16,8 @@ import com.itacademy.juangarcia.database_animal.R;
 
 public class AnimalInfoActivity extends AppCompatActivity {
 
-    EditText editTextName, editTextType, editTextAge, editTextDate;
+    EditText editTextName, editTextType, editTextAge, editTextDate,
+            editTextLat, editTextLon;
     ImageView imgPhoto;
     CheckBox chkboxChip;
 
@@ -31,6 +32,9 @@ public class AnimalInfoActivity extends AppCompatActivity {
         editTextDate = findViewById(R.id.txtDateInfo);
         editTextAge = findViewById(R.id.txtAgeInfo);
         chkboxChip = findViewById(R.id.chkboxChipInfo);
+        editTextLat = findViewById(R.id.txtLatInfo);
+        editTextLon = findViewById(R.id.txtLonInfo);
+
 
         Intent animalFromMainactivityIntent = getIntent();
         Bundle bundle =animalFromMainactivityIntent.getBundleExtra("bundle");
@@ -54,6 +58,8 @@ public class AnimalInfoActivity extends AppCompatActivity {
         editTextDate.setText(currentAnimal.getDate());
         editTextAge.setText(String.valueOf(currentAnimal.getAge()));
         chkboxChip.setChecked(currentAnimal.isChip());
+        editTextLat.setText(currentAnimal.getLatitude());
+        editTextLon.setText(currentAnimal.getLongitude());
     }
 
     private Bitmap bse64ToBitmap(String txtphoto) {

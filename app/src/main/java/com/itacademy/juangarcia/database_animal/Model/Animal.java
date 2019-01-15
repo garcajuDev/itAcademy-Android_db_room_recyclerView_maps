@@ -33,13 +33,22 @@ public class Animal implements Serializable {
     @ColumnInfo(name = "chip")
     private boolean chip;
 
-    public Animal(String name, String photo, String type, String date, int age, boolean chip) {
+    @ColumnInfo(name = "Latitude")
+    private String latitude;
+
+    @ColumnInfo(name = "Longitude")
+    private String longitude;
+
+    public Animal(String name, String photo, String type, String date, int age, boolean chip,
+                    String latitude, String longitude) {
         this.name = name;
         this.photo = photo;
         this.type = type;
         this.date = date;
         this.age = age;
         this.chip = chip;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     @NonNull
@@ -97,5 +106,21 @@ public class Animal implements Serializable {
 
     public void setChip(boolean chip) {
         this.chip = chip;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
     }
 }
