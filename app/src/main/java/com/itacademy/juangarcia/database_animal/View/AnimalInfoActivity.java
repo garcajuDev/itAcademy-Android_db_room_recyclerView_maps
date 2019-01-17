@@ -11,11 +11,21 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.itacademy.juangarcia.database_animal.Model.Animal;
 import com.itacademy.juangarcia.database_animal.R;
 
-public class AnimalInfoActivity extends AppCompatActivity {
+public class AnimalInfoActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    public static final String MAP_KEY = "MapKey";
+    private MapView mapView;
+    private GoogleMap gMap;
     EditText editTextName, editTextType, editTextAge, editTextDate,
             editTextLat, editTextLon;
     ImageView imgPhoto;
@@ -32,22 +42,70 @@ public class AnimalInfoActivity extends AppCompatActivity {
         editTextDate = findViewById(R.id.txtDateInfo);
         editTextAge = findViewById(R.id.txtAgeInfo);
         chkboxChip = findViewById(R.id.chkboxChipInfo);
-        editTextLat = findViewById(R.id.txtLatInfo);
-        editTextLon = findViewById(R.id.txtLonInfo);
-
 
         Intent animalFromMainactivityIntent = getIntent();
         Bundle bundle =animalFromMainactivityIntent.getBundleExtra("bundle");
         Animal currentAnimal = (Animal) bundle.getSerializable("animal");
 
         fillInfo(currentAnimal);
+
+        Bundle mapViewbundle = null;
+        if (savedInstanceState != null) {
+            mapViewbundle = savedInstanceState.getBundle(MAP_KEY);
+        }
+
+        mapView = findViewById(R.id.map_view);
+        mapView.onCreate(mapViewbundle);
+        mapView.getMapAsync(this);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Bundle mapViewBundle = outState.getBundle(MAP_KEY);
+        if (mapViewBundle == null) {
+            mapViewBundle = new Bundle();
+            outState.putBundle(MAP_KEY, mapViewBundle);
+        }
+
+        mapView.onSaveInstanceState(mapViewBundle);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
+        mapView.onResume();
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mapView.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mapView.onStop();
+    }
+    @Override
+    protected void onPause() {
+        mapView.onPause();
+        super.onPause();
+    }
+    @Override
+    protected void onDestroy() {
+        mapView.onDestroy();
+        super.onDestroy();
+    }
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
+    }
+
+
 
     private void fillInfo(Animal currentAnimal) {
         String txtphoto = currentAnimal.getPhoto();
@@ -58,8 +116,6 @@ public class AnimalInfoActivity extends AppCompatActivity {
         editTextDate.setText(currentAnimal.getDate());
         editTextAge.setText(String.valueOf(currentAnimal.getAge()));
         chkboxChip.setChecked(currentAnimal.isChip());
-        editTextLat.setText(currentAnimal.getLatitude());
-        editTextLon.setText(currentAnimal.getLongitude());
     }
 
     private Bitmap bse64ToBitmap(String txtphoto) {
@@ -81,5 +137,36 @@ public class AnimalInfoActivity extends AppCompatActivity {
         startActivity(intentToAddAnimal);
     }
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        double x;
+        double y;
 
+        Intent animalFromMainactivityIntent = getIntent();
+        Bundle bundle =animalFromMainactivityIntent.getBundleExtra("bundle");
+        Animal currentAnimal = (Animal) bundle.getSerializable("animal");
+
+        x = Double.valueOf(currentAnimal.getLatitude());
+        y = Double.valueOf(currentAnimal.getLongitude());
+
+        gMap = googleMap;
+        gMap.setMinZoomPreference(14);
+
+        UiSettings uiSettings = gMap.getUiSettings();
+        uiSettings.setIndoorLevelPickerEnabled(true);
+        uiSettings.setMyLocationButtonEnabled(true);
+        uiSettings.setMapToolbarEnabled(true);
+        uiSettings.setCompassEnabled(true);
+        uiSettings.setZoomControlsEnabled(true);
+
+
+        LatLng ny = new LatLng(x, y);
+        gMap.moveCamera(CameraUpdateFactory.newLatLng(ny));
+
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(ny);
+        gMap.addMarker(markerOptions);
+
+        gMap.moveCamera(CameraUpdateFactory.newLatLng(ny));
+    }
 }

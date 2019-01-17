@@ -108,19 +108,11 @@ public class Animal implements Serializable {
         this.chip = chip;
     }
 
-    public String getLatitude() {
-        return latitude;
-    }
+    public String getLatitude() { return latitude; }
 
-    public void setLatitude(String latitude) {
-        this.latitude = latitude;
-    }
+    public void setLatitude(String latitude) { this.latitude = latitude; }
 
-    public String getLongitude() {
-        return longitude;
-    }
+    public String getLongitude() { return longitude; }
 
-    public void setLongitude(String longitude) {
-        this.longitude = longitude;
-    }
+    public void setLongitude(String longitude) { this.longitude = longitude; }
 }

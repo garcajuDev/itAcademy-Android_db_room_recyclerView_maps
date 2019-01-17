@@ -122,34 +122,15 @@
         app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@drawable/placeholder" />
 
-    <EditText
-        android:id="@+id/txtLatInfo"
-        android:layout_width="115dp"
-        android:layout_height="wrap_content"
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/map_view"
+        android:layout_width="170dp"
+        android:layout_height="200dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:ems="10"
-        android:hint="Latitude"
-        android:focusable="false"
-        android:inputType="textPersonName"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnUpdateInfo"
         app:layout_constraintStart_toEndOf="@+id/imgInfoImage"
         app:layout_constraintTop_toBottomOf="@+id/chkboxChipInfo" />
-
-    <EditText
-        android:id="@+id/txtLonInfo"
-        android:layout_width="112dp"
-        android:layout_height="43dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:focusable="false"
-        android:hint="Longitude"
-        app:layout_constraintBottom_toTopOf="@+id/btnUpdateInfo"
-        app:layout_constraintEnd_toEndOf="@+id/txtLatInfo"
-        app:layout_constraintStart_toStartOf="@+id/txtLatInfo"
-        app:layout_constraintTop_toBottomOf="@+id/txtLatInfo" />
 
 </android.support.constraint.ConstraintLayout>
